@@ -157,6 +157,7 @@ public class Enemy : MonoBehaviour
 
     void Melee()
     {
+        animator.SetBool("Walk", true);
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         // Si el jugador está dentro del rango de detección
@@ -172,6 +173,7 @@ public class Enemy : MonoBehaviour
             if (distanceToPlayer <= meleeAttackRange)
             {
                 agent.isStopped = true;
+                animator.SetBool("Walk", false);
 
                 // Temporizador para ataques
                 meleeAttackTimer += Time.deltaTime;
@@ -180,12 +182,11 @@ public class Enemy : MonoBehaviour
                 {
                     AttackPlayer();
                     meleeAttackTimer = 0f;  // Reiniciar el temporizador
-                    //
-                        animator.Play("Shoot");
                 }
             }
             else
             {
+                animator.SetBool("Walk", true);
                 agent.isStopped = false;
             }
         }
@@ -205,6 +206,7 @@ public class Enemy : MonoBehaviour
             if (p != null)
             {
                 // Aplicar daño al jugador
+                animator.SetTrigger("Attack");
                 p.TakeDamage(damage);
                 Debug.Log("El enemigo Melee ha atacado al jugador, causando " + damage + " de daño.");
             }
@@ -216,6 +218,7 @@ public class Enemy : MonoBehaviour
         life -= damage;
         if (life <= 0)
         {
+            animator.SetTrigger("Die");
             Destroy(gameObject);
         }
     }
