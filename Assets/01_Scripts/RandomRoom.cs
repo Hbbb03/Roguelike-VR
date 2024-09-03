@@ -3,10 +3,8 @@ using UnityEngine;
 
 public class RandomRoom : MonoBehaviour
 {
-    public GameObject roomPrefab; // Prefab del cuadrado
+    public GameObject roomPrefab; // Prefab de la sala
     public int numberOfRooms = 5; // Número total de salas a generar
-
-    public Transform centerPoint; // Punto vacío en el centro de la sala
 
     private List<Vector3> directions;
     private HashSet<Vector3> occupiedPositions = new HashSet<Vector3>();
@@ -35,31 +33,68 @@ public class RandomRoom : MonoBehaviour
         for (int i = 0; i < numberOfRooms - 1; i++)
         {
             Vector3 nextPosition;
+            bool validPositionFound = false;
+
+            // Barajar direcciones para asegurar la aleatoriedad
+            List<Vector3> shuffledDirections = ShuffleDirections(directions);
 
             // Intentar encontrar una posición válida adyacente
-            do
+            foreach (Vector3 direction in shuffledDirections)
             {
-                nextPosition = GetNextRoomPosition(currentPosition);
+                nextPosition = currentPosition + direction;
+
+                if (!occupiedPositions.Contains(nextPosition) && IsPositionValid(nextPosition))
+                {
+                    // Instanciar la sala en la nueva posición válida
+                    Instantiate(roomPrefab, nextPosition, Quaternion.identity);
+                    occupiedPositions.Add(nextPosition);
+
+                    // Actualizar la posición actual
+                    currentPosition = nextPosition;
+                    validPositionFound = true;
+                    break;
+                }
             }
-            while (occupiedPositions.Contains(nextPosition)); // Repetir hasta encontrar una posición libre
 
-            // Instanciar la sala en la nueva posición válida
-            Instantiate(roomPrefab, nextPosition, Quaternion.identity);
-            occupiedPositions.Add(nextPosition);
-
-            // Actualizar la posición actual
-            currentPosition = nextPosition;
+            if (!validPositionFound)
+            {
+                Debug.LogWarning("No se encontró una posición válida para la siguiente sala.");
+                break;
+            }
         }
     }
 
-    Vector3 GetNextRoomPosition(Vector3 currentPosition)
+    List<Vector3> ShuffleDirections(List<Vector3> directions)
     {
-        // Elegir una dirección aleatoria
-        Vector3 randomDirection = directions[Random.Range(0, directions.Count)];
+        // Copiar la lista original
+        List<Vector3> shuffled = new List<Vector3>(directions);
 
-        // Calcular la nueva posición en base a la dirección
-        Vector3 newPosition = currentPosition + randomDirection;
+        // Barajar la lista utilizando el algoritmo Fisher-Yates
+        for (int i = shuffled.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            Vector3 temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
+        }
 
-        return newPosition;
+        return shuffled;
+    }
+
+    bool IsPositionValid(Vector3 position)
+    {
+        // Comprobar las posiciones adyacentes
+        int adjacentCount = 0;
+
+        foreach (Vector3 direction in directions)
+        {
+            if (occupiedPositions.Contains(position + direction))
+            {
+                adjacentCount++;
+            }
+        }
+
+        // Si la posición tiene más de una sala adyacente, no es válida
+        return adjacentCount <= 1;
     }
 }

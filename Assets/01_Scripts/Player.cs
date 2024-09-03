@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public Transform cameraTransform; // Cámara asignada en el Inspector
     private Vector3 cameraOffset; // Offset de la cámara respecto al jugador
     public float maxLife = 5f;
+    public float rotationSpeed = 10f;
 
     public float life = 5f;
 
@@ -42,13 +43,9 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        // Movimiento del jugador
-        float moveForward = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-        float moveSideways = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        
-        transform.Translate(moveSideways, 0, moveForward);
 
-        // Controlar la rotación del jugador con el mouse
+        Movement();
+
 
         // Hacer que la cámara siga al jugador manteniendo el offset
         cameraTransform.position = transform.position + cameraOffset;
@@ -64,11 +61,42 @@ public class Player : MonoBehaviour
             animator.Play("Dance");
         }
 
-        animator.SetFloat("Velx", moveSideways);
-        animator.SetFloat("Vely", moveForward);
 
     }
 
+    void Movement()
+    {
+        // Movimiento del jugador
+        float moveForward = Input.GetAxis("Vertical");
+        float moveSideways = Input.GetAxis("Horizontal");
+
+        // Vector de movimiento relativo a la cámara
+        Vector3 movement = new Vector3(moveSideways, 0, moveForward);
+
+        // Convertir el movimiento a las coordenadas del mundo relativo a la cámara
+        Vector3 moveDirection = cameraTransform.TransformDirection(movement);
+
+        // Mantener el movimiento en el plano horizontal (Y=0)
+        moveDirection.y = 0;
+
+        // Normalizar el vector de movimiento para asegurar velocidad constante
+        moveDirection = moveDirection.normalized;
+
+        // Si hay movimiento, rotar el jugador hacia la dirección del movimiento
+        if (moveDirection != Vector3.zero)
+        {
+            // Calcular la rotación objetivo
+            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+
+            // Interpolar suavemente hacia la rotación objetivo
+            transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        // Aplicar el movimiento
+        transform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.World);
+        animator.SetFloat("Velx", moveSideways);
+        animator.SetFloat("Vely", moveForward);
+    }
     void fillLives()
     {
 
