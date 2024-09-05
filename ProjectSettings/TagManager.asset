@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Enemy
   - Boss
+  - Right
+  - Left
+  - Down
+  - Up
   layers:
   - Default
   - TransparentFX
