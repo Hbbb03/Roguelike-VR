@@ -218,7 +218,7 @@ public class Enemy : MonoBehaviour
         life -= damage;
         if (life <= 0)
         {
-            animator.SetTrigger("Die");
+            //animator.SetTrigger("Die");
             Destroy(gameObject);
         }
     }

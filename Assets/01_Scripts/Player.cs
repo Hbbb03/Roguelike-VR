@@ -19,16 +19,41 @@ public class Player : MonoBehaviour
     public Transform firePoint;  // Punto de origen del disparo
     public GameObject bulletPrefab;  // Prefab del proyectil
     public float bulletSpeed = 20f;  // Velocidad del proyectil
+    public Rigidbody rb;
 
     private Camera cameraComponent;
 
+    New_Input_System inputSystem;
+    Vector2 dir = Vector2.zero;
     //Animaciones
     public Animator animator;
 
     public TextMeshProUGUI lives;
 
-    private void Start()
+    private void Awake()
     {
+        inputSystem = new New_Input_System();
+        inputSystem.Player.Movement.performed += ctx => dir = ctx.ReadValue<Vector2>();
+        inputSystem.Player.Movement.canceled += ctx => dir =   Vector2.zero;
+
+        inputSystem.Player.Shoot.performed += ctx => Shoot();   
+
+    }
+
+    void OnEnable()
+    {
+        inputSystem.Enable();
+    }
+
+    void OnDisable()
+    {
+        inputSystem.Disable();
+        
+    }
+
+     void Start()
+    {
+
         // Calcular el offset inicial entre la cámara y el jugador
         cameraOffset = cameraTransform.position - transform.position;
 
@@ -49,9 +74,29 @@ public class Player : MonoBehaviour
 
         // Hacer que la cámara siga al jugador manteniendo el offset
         cameraTransform.position = transform.position + cameraOffset;
+        //Attack();
+
+        //// Detectar clic izquierdo para disparar
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    Shoot();
+        //    animator.Play("Shoot");
+        //}
+        //if (Input.GetKey(KeyCode.F))
+        //{
+        //    animator.Play("Dance");
+        //}
+
+
+    }
+
+    void Attack()
+    {
+        // Hacer que la cámara siga al jugador manteniendo el offset
+        cameraTransform.position = transform.position + cameraOffset;
 
         // Detectar clic izquierdo para disparar
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0)) 
         {
             Shoot();
             animator.Play("Shoot");
@@ -60,18 +105,11 @@ public class Player : MonoBehaviour
         {
             animator.Play("Dance");
         }
-
-
     }
-
     void Movement()
     {
-        // Movimiento del jugador
-        float moveForward = Input.GetAxis("Vertical");
-        float moveSideways = Input.GetAxis("Horizontal");
-
-        // Vector de movimiento relativo a la cámara
-        Vector3 movement = new Vector3(moveSideways, 0, moveForward);
+        // Variables de movimiento basadas en el joystick
+        Vector3 movement = new Vector3(dir.x, 0, dir.y);
 
         // Convertir el movimiento a las coordenadas del mundo relativo a la cámara
         Vector3 moveDirection = cameraTransform.TransformDirection(movement);
@@ -81,6 +119,9 @@ public class Player : MonoBehaviour
 
         // Normalizar el vector de movimiento para asegurar velocidad constante
         moveDirection = moveDirection.normalized;
+
+        // Aplicar la velocidad al Rigidbody
+        rb.velocity = new Vector3(moveDirection.x * moveSpeed, rb.velocity.y, moveDirection.z * moveSpeed);
 
         // Si hay movimiento, rotar el jugador hacia la dirección del movimiento
         if (moveDirection != Vector3.zero)
@@ -92,11 +133,11 @@ public class Player : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // Aplicar el movimiento
-        transform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.World);
-        animator.SetFloat("Velx", moveSideways);
-        animator.SetFloat("Vely", moveForward);
+        // Actualizar parámetros de animación (si es necesario)
+        animator.SetFloat("Velx", moveDirection.x);
+        animator.SetFloat("Vely", moveDirection.z);
     }
+
     void fillLives()
     {
 
@@ -113,35 +154,31 @@ public class Player : MonoBehaviour
 
     void Shoot()
     {
-        // Obtener la posición del mouse en la pantalla
-        Ray ray = cameraComponent.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        // Dirección de disparo basada en la rotación actual del jugador
+        Vector3 shootDirection = transform.forward;
 
-        // Hacer un raycast desde la cámara hacia la posición del mouse
-        if (Physics.Raycast(ray, out hit))
+        // Instanciar el proyectil en la posición del firePoint
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+
+        // Darle velocidad al proyectil en la dirección calculada
+        Rigidbody rb = bullet.GetComponent<Rigidbody>();
+        if (rb != null)
         {
-            // Dirección desde el firepoint hacia el punto impactado por el raycast
-            Vector3 shootDirection = (hit.point - firePoint.position).normalized;
+            // Asegurarse de que el Rigidbody es cinemático esté desactivado
+            rb.isKinematic = false;
 
-            // Instanciar el proyectil
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
-            // Darle velocidad al proyectil en la dirección calculada
-            Rigidbody rb = bullet.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                // Asegurarse de que el Rigidbody es cinemático esté desactivado
-                rb.isKinematic = false;
-
-                // Aplicar la velocidad en la dirección correcta
-                rb.velocity = shootDirection * bulletSpeed;
-            }
-            else
-            {
-                Debug.LogError("El proyectil no tiene un componente Rigidbody.");
-            }
+            // Aplicar la velocidad en la dirección correcta
+            rb.velocity = shootDirection * bulletSpeed;
         }
+        else
+        {
+            Debug.LogError("El proyectil no tiene un componente Rigidbody.");
+        }
+
+        // Ejecutar la animación de disparo
+        animator.Play("Shoot");
     }
+
 
     public void TakeDamage(float damage)
     {
