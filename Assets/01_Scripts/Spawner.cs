@@ -26,35 +26,32 @@ public class Spawner : MonoBehaviour
         {
             if (enemiesSpawned < maxEnemies)
             {
-                Vector3 spawnPosition = GetRandomSpawnPosition();
+                Vector3 spawnPosition = GetRandomSpawnPosition(); // Generar posición aleatoria
 
-                if (NavMesh.SamplePosition(spawnPosition, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
-                {
-                    GameObject randomEnemyPrefab = GetRandomEnemyPrefab();
-                    Instantiate(randomEnemyPrefab, hit.position, Quaternion.identity);
-                    enemiesSpawned++;
-                }
-                else
-                {
-                    Debug.LogWarning("No se encontró una posición válida en el NavMesh para generar el enemigo.");
-                }
+                // Instanciar enemigo en la posición calculada
+                GameObject randomEnemyPrefab = GetRandomEnemyPrefab();
+                Instantiate(randomEnemyPrefab, spawnPosition, Quaternion.identity);
+                enemiesSpawned++;
             }
 
             if (!bossSpawned && enemiesKilled >= 20)
             {
-                SpawnBoss();
+                // Lógica para generar el jefe
+                // SpawnBoss();
             }
 
             yield return new WaitForSeconds(spawnInterval);
         }
-    }   
+    }
 
     Vector3 GetRandomSpawnPosition()
     {
         float randomX = Random.Range(spawnPoint1.position.x, spawnPoint2.position.x);
+        float randomY = Random.Range(spawnPoint1.position.y, spawnPoint2.position.y); // Incluir Y para posición vertical si es necesario
         float randomZ = Random.Range(spawnPoint1.position.z, spawnPoint2.position.z);
-        return new Vector3(randomX, spawnPoint1.position.y, randomZ);
+        return new Vector3(randomX, randomY, randomZ);
     }
+    
 
     GameObject GetRandomEnemyPrefab()
     {
@@ -62,21 +59,21 @@ public class Spawner : MonoBehaviour
         return enemyPrefabs[randomIndex];
     }
 
-    void SpawnBoss()
-    {
-        Vector3 spawnPosition = GetRandomSpawnPosition();
+    //void SpawnBoss()
+    //{
+    //    Vector3 spawnPosition = GetRandomSpawnPosition();
 
-        if (NavMesh.SamplePosition(spawnPosition, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
-        {
-            Instantiate(bossPrefab, hit.position, Quaternion.identity);
-            bossSpawned = true;
-            Debug.Log("Jefe generado!");
-        }
-        else
-        {
-            Debug.LogWarning("No se encontró una posición válida en el NavMesh para generar el jefe.");
-        }
-    }
+    //    if (NavMesh.SamplePosition(spawnPosition, out NavMeshHit hit, 1.0f, NavMesh.AllAreas))
+    //    {
+    //        Instantiate(bossPrefab, hit.position, Quaternion.identity);
+    //        bossSpawned = true;
+    //        Debug.Log("Jefe generado!");
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning("No se encontró una posición válida en el NavMesh para generar el jefe.");
+    //    }
+    //}
 
     public void EnemyKilled()
     {

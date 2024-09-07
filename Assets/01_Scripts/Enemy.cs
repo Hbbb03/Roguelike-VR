@@ -150,6 +150,7 @@ public class Enemy : MonoBehaviour
 
         if (attackTimer >= attackCooldown)
         {
+            Debug.Log("Apuntando bala...");
             Shoot();
             attackTimer = 0f;
         }
@@ -209,6 +210,8 @@ public class Enemy : MonoBehaviour
                 animator.SetTrigger("Attack");
                 p.TakeDamage(damage);
                 Debug.Log("El enemigo Melee ha atacado al jugador, causando " + damage + " de daño.");
+
+           
             }
         }
     }

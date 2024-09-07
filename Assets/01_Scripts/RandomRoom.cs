@@ -4,17 +4,16 @@ using UnityEngine;
 public class RandomRoom : MonoBehaviour
 {
     public GameObject roomPrefab; // Prefab de la sala
+    public GameObject bossPrefab; // Prefab del jefe
     public int numberOfRooms = 5; // Número total de salas a generar
+    public GameObject spawnerPrefab;
 
     private List<Vector3> directions;
     private HashSet<Vector3> occupiedPositions = new HashSet<Vector3>();
-
-    // Lista para almacenar las posiciones y referencias a las salas generadas
     private List<RoomData> generatedRooms = new List<RoomData>();
 
     private void Start()
     {
-        // Inicializar las direcciones en función de la distancia entre salas
         directions = new List<Vector3>
         {
             new Vector3(40f, 0, 0), // Derecha
@@ -24,6 +23,7 @@ public class RandomRoom : MonoBehaviour
         };
 
         GeneratePath();
+        PlaceBossInLastRoom();
     }
 
     void GeneratePath()
@@ -32,12 +32,14 @@ public class RandomRoom : MonoBehaviour
         occupiedPositions.Add(currentPosition);
         GameObject firstRoom = Instantiate(roomPrefab, currentPosition, Quaternion.identity);
 
-        // Asignar roomPositions al DoorManager de la primera sala
+        Instantiate(spawnerPrefab, firstRoom.transform.position, Quaternion.identity, firstRoom.transform);
         DoorManager doorManager = firstRoom.GetComponent<DoorManager>();
         if (doorManager != null)
         {
             doorManager.roomPositions = occupiedPositions;
         }
+
+        generatedRooms.Add(new RoomData(currentPosition, firstRoom));
 
         for (int i = 0; i < numberOfRooms - 1; i++)
         {
@@ -55,7 +57,8 @@ public class RandomRoom : MonoBehaviour
                     GameObject newRoom = Instantiate(roomPrefab, nextPosition, Quaternion.identity);
                     occupiedPositions.Add(nextPosition);
 
-                    // Asignar roomPositions al DoorManager de la nueva sala
+                    Instantiate(spawnerPrefab, newRoom.transform.position, Quaternion.identity, newRoom.transform);
+
                     DoorManager newDoorManager = newRoom.GetComponent<DoorManager>();
                     if (newDoorManager != null)
                     {
@@ -64,6 +67,7 @@ public class RandomRoom : MonoBehaviour
 
                     currentPosition = nextPosition;
                     validPositionFound = true;
+                    generatedRooms.Add(new RoomData(nextPosition, newRoom));
                     break;
                 }
             }
@@ -76,8 +80,16 @@ public class RandomRoom : MonoBehaviour
         }
     }
 
+    void PlaceBossInLastRoom()
+    {
+        if (generatedRooms.Count > 0)
+        {
+            RoomData lastRoom = generatedRooms[generatedRooms.Count - 1];
+            Instantiate(bossPrefab, lastRoom.position, Quaternion.identity);
+            Debug.Log("Jefe generado en la última sala.");
+        }
+    }
 
-    // Clase para almacenar la posición y la referencia de cada sala
     class RoomData
     {
         public Vector3 position;
@@ -92,10 +104,7 @@ public class RandomRoom : MonoBehaviour
 
     List<Vector3> ShuffleDirections(List<Vector3> directions)
     {
-        // Copiar la lista original
         List<Vector3> shuffled = new List<Vector3>(directions);
-
-        // Barajar la lista utilizando el algoritmo Fisher-Yates
         for (int i = shuffled.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
@@ -103,15 +112,12 @@ public class RandomRoom : MonoBehaviour
             shuffled[i] = shuffled[j];
             shuffled[j] = temp;
         }
-
         return shuffled;
     }
 
     bool IsPositionValid(Vector3 position)
     {
-        // Comprobar las posiciones adyacentes
         int adjacentCount = 0;
-
         foreach (Vector3 direction in directions)
         {
             if (occupiedPositions.Contains(position + direction))
@@ -119,12 +125,9 @@ public class RandomRoom : MonoBehaviour
                 adjacentCount++;
             }
         }
-
-        // Si la posición tiene más de una sala adyacente, no es válida
         return adjacentCount <= 1;
     }
 
-    // Método público para obtener las posiciones de las salas generadas
     public List<Vector3> GetGeneratedRoomPositions()
     {
         List<Vector3> roomPositions = new List<Vector3>();
@@ -135,7 +138,6 @@ public class RandomRoom : MonoBehaviour
         return roomPositions;
     }
 
-    // Método público para obtener las referencias de los GameObjects de las salas generadas
     public List<GameObject> GetGeneratedRoomObjects()
     {
         List<GameObject> roomObjects = new List<GameObject>();
@@ -145,6 +147,4 @@ public class RandomRoom : MonoBehaviour
         }
         return roomObjects;
     }
-
-
 }

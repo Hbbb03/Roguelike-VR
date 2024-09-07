@@ -10,6 +10,7 @@ TagManager:
   - Left
   - Down
   - Up
+  - Bullet
   layers:
   - Default
   - TransparentFX

@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
     public Animator animator;
 
     public TextMeshProUGUI lives;
+    public TextMeshProUGUI speedText;   
+    public TextMeshProUGUI damageText;
 
     private void Awake()
     {
@@ -36,8 +38,8 @@ public class Player : MonoBehaviour
         inputSystem.Player.Movement.performed += ctx => dir = ctx.ReadValue<Vector2>();
         inputSystem.Player.Movement.canceled += ctx => dir =   Vector2.zero;
 
-        inputSystem.Player.Shoot.performed += ctx => Shoot();   
-
+        inputSystem.Player.Shoot.performed += ctx => Shoot();
+        
     }
 
     void OnEnable()
@@ -64,13 +66,16 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("El cameraTransform no tiene un componente Camera.");
         }
+
+        
+        UpdateStatsUI();
     }
 
     private void Update()
     {
 
         Movement();
-
+        UpdateStatsUI();
 
         // Hacer que la cámara siga al jugador manteniendo el offset
         cameraTransform.position = transform.position + cameraOffset;
@@ -190,4 +195,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    void UpdateStatsUI()
+    {
+        speedText.text = "Velocidad: " + moveSpeed.ToString("F1");
+        damageText.text = "Daño: " + bulletSpeed.ToString("F1");
+    }
 }
