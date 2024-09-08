@@ -2008,8 +2008,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4092216104359533170}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.37, z: 0}
-  m_LocalScale: {x: 0.15625, y: 0.037003703, z: 0.15625}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalScale: {x: 0.15625, y: 0.0370037, z: 0.15625}
   m_Children:
   - {fileID: 4092216105792503383}
   - {fileID: 4092216105911487265}
@@ -2174,6 +2174,8 @@ MonoBehaviour:
   downDoor: {fileID: 3326486717409652677}
   leftDoor: {fileID: 6286042602373938746}
   rightDoor: {fileID: 4262520207408016469}
+  emptyPoint: {fileID: 4092216105792503383}
+  enemiesToKill: 1
 --- !u!23 &4092216104359533168
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -26571,6 +26573,10 @@ PrefabInstance:
       value: left
       objectReference: {fileID: 0}
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_TagString
       value: Left
       objectReference: {fileID: 0}
@@ -26644,6 +26650,10 @@ PrefabInstance:
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_Name
       value: down
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_TagString
@@ -26721,6 +26731,10 @@ PrefabInstance:
       value: right
       objectReference: {fileID: 0}
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_TagString
       value: Right
       objectReference: {fileID: 0}
@@ -26794,6 +26808,10 @@ PrefabInstance:
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_Name
       value: up
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7532139993857552918, guid: 032ae6ae48a0827438c752cde9600dfc, type: 3}
       propertyPath: m_TagString

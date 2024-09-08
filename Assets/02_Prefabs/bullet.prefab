@@ -113,6 +113,9 @@ MonoBehaviour:
   bulletSpeed: 20
   playerBullet: 1
   damage: 1
+  detectionRadius: 20
+  turnSpeed: 2
+  enemy: {fileID: 6054391732964066006, guid: 54aaa2fa9f2ea0a41aa60296334e8706, type: 3}
 --- !u!54 &-2845910722382704143
 Rigidbody:
   m_ObjectHideFlags: 0
